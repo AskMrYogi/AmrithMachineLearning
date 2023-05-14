@@ -1,3 +1,4 @@
+import numpy as np
 from manim import *
 from numpy import array
 import random
@@ -185,6 +186,23 @@ class ShowAnimation(Scene):
 
         self.wait(2)
 
+
+    def weights(self):
+
+        random.seed(1)
+        weight_arr = np.random.rand(3,1)
+
+        self.weight_matrix = (2*weight_arr)-1
+
+        return self.weight_matrix
+
+    def tanh_a(self,x):
+
+        return np.tanh(x)
+
+    def tanh_derivative(self,x):
+
+        return 1- np.tanh(x) **2
 
     def load_data(self):
 
