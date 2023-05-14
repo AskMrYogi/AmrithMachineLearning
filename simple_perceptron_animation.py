@@ -8,87 +8,81 @@ class ShowAnimation(Scene):
 
 
         #show input / output
-        #self.data_scene()
-        #self.clear()
+        self.data_scene()
+
+        self.clear()
 
         self.create_network()
         self.clear()
 
+
     def data_scene(self):
-        inp_txt =Text("Input",font_size=20)
-        train_inputs = array([[0,0,0],[1,1,1],[1,0,1],[0,1,1],[0,1,0]])
-        out_txt = Text("Expected \n Output",font_size=20)
-        output = array([[0],[1],[1],[0],[0]])
+        train_inputs = array([[0, 0, 0], [1, 1, 1], [1, 0, 1], [0, 1, 1], [0, 1, 0]])
+        output = array([[0], [1], [1], [0], [0]])
 
-        inp_matrix=Matrix(train_inputs,
-            v_buff=0.6,
-            h_buff=0.6,
-            bracket_h_buff=SMALL_BUFF,
-            bracket_v_buff=SMALL_BUFF
-            )
-
-        out_matrix=Matrix(output,
-            v_buff=0.6,
-            h_buff=0.6,
-            bracket_h_buff=SMALL_BUFF,
-            bracket_v_buff=SMALL_BUFF
-            )
-
-        inp_txt.move_to([-5,3,0])
-
+        inp_txt = Text("Input", font_size=20).move_to([-5, 3, 0])
+        inp_matrix = Matrix(train_inputs, v_buff=0.6, h_buff=0.6, bracket_h_buff=SMALL_BUFF, bracket_v_buff=SMALL_BUFF)
         inp_matrix.next_to(inp_txt,DOWN)
-        out_txt.next_to(inp_txt,RIGHT).shift(.5*RIGHT)
+        out_txt = Text("Expected\nOutput", font_size=20).next_to(inp_txt, RIGHT).shift(0.5 * RIGHT)
+        out_matrix = Matrix(output, v_buff=0.6, h_buff=0.6, bracket_h_buff=SMALL_BUFF, bracket_v_buff=SMALL_BUFF)
         out_matrix.next_to(inp_matrix)
 
+        inp_rectangles = VGroup()
+        out_rectangles = VGroup()
+        inp_texts = VGroup()
+        inp_arrows = VGroup()
+        out_texts = VGroup()
+        out_arrows = VGroup()
 
-        fir_1 = SurroundingRectangle(inp_matrix.get_rows()[0],color="Green",buff=.1)
-        fir_2 = SurroundingRectangle(inp_matrix.get_rows()[1],color="Green",buff=.1)
-        fir_3 = SurroundingRectangle(inp_matrix.get_rows()[2],color="Green",buff=.1)
-        fir_4 = SurroundingRectangle(inp_matrix.get_rows()[3],color="Green",buff=.1)
-        fir_5 = SurroundingRectangle(inp_matrix.get_rows()[4],color="Green",buff=.1)
+        for i in range(len(train_inputs)):
+            input_rectangle = SurroundingRectangle(inp_matrix.get_rows()[i], color="Green", buff=0.1)
+            #rectangles.add(input_rectangle)
+            output_rectangle = SurroundingRectangle(out_matrix.get_rows()[i], color="Yellow", buff=0.1)
+            inp_rectangles.add(input_rectangle)
 
-        for_1 = SurroundingRectangle(out_matrix.get_rows()[0],color="Yellow",buff=.1)
-        for_2 = SurroundingRectangle(out_matrix.get_rows()[1],color="Yellow",buff=.1)
-        for_3 = SurroundingRectangle(out_matrix.get_rows()[2],color="Yellow",buff=.1)
-        for_4 = SurroundingRectangle(out_matrix.get_rows()[3],color="Yellow",buff=.1)
-        for_5 = SurroundingRectangle(out_matrix.get_rows()[4],color="Yellow",buff=.1)
+            input_text = Text("Input Value", font_size=15).next_to(input_rectangle, LEFT)
+            input_arrow = Arrow(input_text.get_right(), input_rectangle.get_left(), buff=1)
+            inp_texts.add(input_text)
+            inp_arrows.add(input_arrow)
 
+
+            out_rectangles.add(output_rectangle)
+            out_text = Text("Target", font_size=15).next_to(output_rectangle, RIGHT)
+            out_arrow = Arrow(out_text.get_left(), output_rectangle.get_right(), buff=1)
+            out_texts.add(out_text)
+            out_arrows.add(out_arrow)
 
         animations = [
             FadeIn(inp_txt),
             Create(inp_matrix),
             FadeIn(out_txt),
-            Create(out_matrix)
+            Create(out_matrix),
         ]
-        self.play(AnimationGroup(*animations,lag_ratio=.5))
-        self.wait(.5)
+        self.play(*animations, lag_ratio=0.5)
 
-        animations_1 = [
-            Create(fir_1),
-            Create(for_1)
-        ]
-        self.play(AnimationGroup(*animations_1,lag_ratio=.5))
-        animations_2 = [
-            ReplacementTransform(fir_1, fir_2),
-            ReplacementTransform(for_1, for_2),
-        ]
-        self.play(AnimationGroup(*animations_2))
-        animations_3 = [
-            ReplacementTransform(fir_2, fir_3),
-            ReplacementTransform(for_2, for_3)
-        ]
-        self.play(AnimationGroup(*animations_3))
-        animations_4 = [
-            ReplacementTransform(fir_3, fir_4),
-            ReplacementTransform(for_3, for_4)
-        ]
-        self.play(AnimationGroup(*animations_4))
-        animations_5 = [
-            ReplacementTransform(fir_4, fir_5),
-            ReplacementTransform(for_4, for_5)
-        ]
-        self.play(AnimationGroup(*animations_5))
+        for i in range(len(inp_rectangles)):
+            if i==0:
+                self.play(
+                    Create(inp_rectangles[i]),
+                    Create(out_rectangles[i]),
+                    FadeIn(inp_texts[i]),
+                    GrowArrow(inp_arrows[i]),
+                    FadeIn(out_texts[i]),
+                    GrowArrow(out_arrows[i])
+                )
+            else:
+                animations = [
+                    ReplacementTransform(inp_rectangles[i - 1],inp_rectangles[i]),
+                    ReplacementTransform(out_rectangles[i - 1], out_rectangles[i]),
+                    ReplacementTransform(inp_texts[i - 1],inp_texts[i]),
+                    ReplacementTransform(inp_arrows[i - 1], inp_arrows[i]),
+                    ReplacementTransform(out_texts[i - 1], out_texts[i]),
+                    ReplacementTransform(out_arrows[i - 1], out_arrows[i]),
+                ]
+                self.play(AnimationGroup(*animations))
+
         self.wait()
+
 
     def create_network(self):
 
@@ -96,9 +90,13 @@ class ShowAnimation(Scene):
         inp_2_circle = Circle(radius=.5, color="BLUE")
         inp_3_circle = Circle(radius=.5, color="BLUE")
 
+        circles_group = VGroup(inp_1_circle, inp_2_circle, inp_3_circle).arrange(DOWN, buff=0.5)
+
         inp_1_circle.move_to([-5,3,0])
         inp_2_circle.next_to(inp_1_circle,DOWN)
         inp_3_circle.next_to(inp_2_circle, DOWN)
+        start_position = [-5, 3, 0]
+
 
         train_inputs = array([[0, 0, 0], [1, 1, 1], [1, 0, 1], [0, 1, 1], [0, 1, 0]])
         inp_matrix=Matrix(train_inputs,
@@ -111,9 +109,10 @@ class ShowAnimation(Scene):
         fir_1 = SurroundingRectangle(inp_matrix.get_rows()[0],color="Green",buff=.1)
 
         animations = [
-            Create(inp_1_circle),
-            Create(inp_2_circle),
-            Create(inp_3_circle),
+            # Create(inp_1_circle),
+            # Create(inp_2_circle),
+            # Create(inp_3_circle),
+            FadeIn(circles_group),
             FadeIn(inp_matrix),
             Create(fir_1)
         ]
@@ -129,7 +128,72 @@ class ShowAnimation(Scene):
         animations_2 = [
             FadeOut(fir_1),
             FadeOut(inp_matrix)
+
         ]
         self.play(AnimationGroup(*animations_2,lag_ratio=.5))
 
-        self.wait(2)w
+
+        new_pos =[-4,0,0]
+
+        animations_3=[
+            Transform(circles_group,circles_group.copy().move_to(new_pos))
+        ]
+        self.play(AnimationGroup(*animations_3,lag_ratio=.5))
+
+
+
+        neuron_circle = Circle(radius=1.5, color="GREEN")
+        neuron_circle.next_to(circles_group,RIGHT,buff=3)
+
+        animations_4=[
+            FadeIn(neuron_circle)
+        ]
+        self.play(AnimationGroup(*animations_4,lag_ratio=.5))
+
+
+
+        lines = VGroup()
+        for circle in circles_group:
+            line = Line(circle.get_right(),neuron_circle.get_left(),color=WHITE)
+            lines.add(line)
+
+        # Add the text
+        text = Text("Trainable Weights", color=WHITE,font_size=20)
+        text.next_to(lines, UP, buff=.5)
+
+        animations_5=[
+            Create(lines,run_time=2),
+            FadeIn(text)
+        ]
+        self.play(AnimationGroup(*animations_5,lag_ratio=.5))
+
+
+        out_circle = Circle(radius=.5, color="GREEN")
+        out_circle.next_to(neuron_circle,RIGHT,buff=1)
+
+        line_o = Line(neuron_circle.get_right(), out_circle.get_left(), color=WHITE)
+
+        animations_6=[
+            FadeIn(out_circle),
+            Create(line_o, run_time=1),
+
+        ]
+        self.play(AnimationGroup(*animations_6,lag_ratio=.5))
+
+
+
+
+        self.wait(2)
+
+
+    def load_data(self):
+
+
+        # show first value loaded to input circles
+        # show initial weight created and loaaded to lines
+        # show initial bias
+
+        # show the formula of aggregation
+
+        # show the aggregation and output
+        pass
