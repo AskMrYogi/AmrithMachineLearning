@@ -7,19 +7,22 @@ class ShowAnimation(Scene):
 
     def construct(self):
 
+        self.train_inputs = array([[0, 0, 0], [1, 1, 1], [1, 0, 1], [0, 1, 1], [0, 1, 0]])
+        self.output = array([[0], [1], [1], [0], [0]])
+
+        self.weight_matrix = self.weights()
 
         #show input / output
-        self.data_scene()
+        #self.data_scene(self.train_inputs,self.output)
 
         self.clear()
 
-        self.create_network()
+        self.create_network(self.train_inputs , self.output,self.weight_matrix)
         self.clear()
 
 
-    def data_scene(self):
-        train_inputs = array([[0, 0, 0], [1, 1, 1], [1, 0, 1], [0, 1, 1], [0, 1, 0]])
-        output = array([[0], [1], [1], [0], [0]])
+    def data_scene(self,train_inputs,output):
+
 
         inp_txt = Text("Input", font_size=20).move_to([-5, 3, 0])
         inp_matrix = Matrix(train_inputs, v_buff=0.6, h_buff=0.6, bracket_h_buff=SMALL_BUFF, bracket_v_buff=SMALL_BUFF)
@@ -85,7 +88,7 @@ class ShowAnimation(Scene):
         self.wait()
 
 
-    def create_network(self):
+    def create_network(self,train_inputs, output,weight_matrix):
 
         inp_1_circle = Circle(radius=.5, color="BLUE")
         inp_2_circle = Circle(radius=.5, color="BLUE")
@@ -93,51 +96,14 @@ class ShowAnimation(Scene):
 
         circles_group = VGroup(inp_1_circle, inp_2_circle, inp_3_circle).arrange(DOWN, buff=0.5)
 
-        inp_1_circle.move_to([-5,3,0])
+        inp_1_circle.move_to([-4,1.5,0])
         inp_2_circle.next_to(inp_1_circle,DOWN)
         inp_3_circle.next_to(inp_2_circle, DOWN)
-        start_position = [-5, 3, 0]
 
 
-        train_inputs = array([[0, 0, 0], [1, 1, 1], [1, 0, 1], [0, 1, 1], [0, 1, 0]])
-        inp_matrix=Matrix(train_inputs,
-            v_buff=0.6,
-            h_buff=0.6,
-            bracket_h_buff=SMALL_BUFF,
-            bracket_v_buff=SMALL_BUFF
-            )
-        inp_matrix.next_to(inp_3_circle,DOWN)
-        fir_1 = SurroundingRectangle(inp_matrix.get_rows()[0],color="Green",buff=.1)
-
-        animations = [
-            # Create(inp_1_circle),
-            # Create(inp_2_circle),
-            # Create(inp_3_circle),
-            FadeIn(circles_group),
-            FadeIn(inp_matrix),
-            Create(fir_1)
-        ]
-
-        self.play(AnimationGroup(*animations,lag_ratio=.5))
-
-        animations_1 = [
-            ApplyMethod(inp_matrix.get_rows()[0][0].move_to, inp_1_circle),
-            ApplyMethod(inp_matrix.get_rows()[0][1].move_to, inp_2_circle),
-            ApplyMethod(inp_matrix.get_rows()[0][2].move_to, inp_3_circle),
-        ]
-        self.play(AnimationGroup(*animations_1,lag_ratio=.5))
-        animations_2 = [
-            FadeOut(fir_1),
-            FadeOut(inp_matrix)
-
-        ]
-        self.play(AnimationGroup(*animations_2,lag_ratio=.5))
-
-
-        new_pos =[-4,0,0]
 
         animations_3=[
-            Transform(circles_group,circles_group.copy().move_to(new_pos))
+            Create(circles_group)
         ]
         self.play(AnimationGroup(*animations_3,lag_ratio=.5))
 
@@ -182,9 +148,32 @@ class ShowAnimation(Scene):
         self.play(AnimationGroup(*animations_6,lag_ratio=.5))
 
 
+        inp_matrix=Matrix(train_inputs,
+            v_buff=0.5,
+            h_buff=0.5,
+            bracket_h_buff=SMALL_BUFF,
+            bracket_v_buff=SMALL_BUFF
+            )
+        inp_matrix.next_to(inp_2_circle,LEFT)
 
-
+        animations_7=[
+            FadeIn(inp_matrix)
+        ]
+        self.play(AnimationGroup(*animations_7,lag_ratio=.5))
         self.wait(2)
+
+    def load_data(self,train_inputs, output,weight_matrix):
+
+        # show first value loaded to input circles
+        # show initial weight created and loaaded to lines
+        # show initial bias
+
+        # show the formula of aggregation
+
+        # show the aggregation and output
+
+
+        pass
 
 
     def weights(self):
@@ -204,14 +193,3 @@ class ShowAnimation(Scene):
 
         return 1- np.tanh(x) **2
 
-    def load_data(self):
-
-
-        # show first value loaded to input circles
-        # show initial weight created and loaaded to lines
-        # show initial bias
-
-        # show the formula of aggregation
-
-        # show the aggregation and output
-        pass
