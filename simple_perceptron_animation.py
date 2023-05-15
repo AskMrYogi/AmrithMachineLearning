@@ -143,7 +143,6 @@ class ShowAnimation(Scene):
         animations_6=[
             FadeIn(out_circle),
             Create(line_o, run_time=1),
-
         ]
         self.play(AnimationGroup(*animations_6,lag_ratio=.5))
 
@@ -160,6 +159,47 @@ class ShowAnimation(Scene):
             FadeIn(inp_matrix)
         ]
         self.play(AnimationGroup(*animations_7,lag_ratio=.5))
+
+        first_row_highlight = SurroundingRectangle(inp_matrix.get_rows()[0], color="green")
+
+        # Create and position elements inside the circles
+        f_element = Text(str(train_inputs[0][0]), font_size=30).move_to(inp_1_circle)
+        s_element = Text(str(train_inputs[0][1]), font_size=30).move_to(inp_2_circle)
+        t_element = Text(str(train_inputs[0][2]), font_size=30).move_to(inp_3_circle)
+
+        # Create animation sequence
+        animations = [
+            Create(first_row_highlight),
+            FadeIn(f_element),
+            FadeIn(s_element),
+            FadeIn(t_element)
+        ]
+
+        self.play(*animations, lag_ratio=0.5)
+        weights_txt = Text("Initial Weights",font_size=20)
+
+        wt_matrix=Matrix(weight_matrix,
+            v_buff=0.5,
+            h_buff=0.5,
+            bracket_h_buff=SMALL_BUFF,
+            bracket_v_buff=SMALL_BUFF
+            )
+
+
+        wt_matrix.next_to(lines,DOWN, buff=1)
+        weights_txt.next_to(wt_matrix,LEFT)
+
+        array_elements = [Text(str(element), font_size=20) for element in weight_matrix]
+        for i, element in enumerate(array_elements):
+            element.next_to(lines[i])
+
+        self.play(
+            FadeIn(weights_txt),
+            FadeIn(wt_matrix),
+            *[FadeIn(element) for element in array_elements]
+        )
+
+
         self.wait(2)
 
     def load_data(self,train_inputs, output,weight_matrix):
