@@ -100,10 +100,12 @@ class ShowAnimation(Scene):
         inp_2_circle.next_to(inp_1_circle,DOWN)
         inp_3_circle.next_to(inp_2_circle, DOWN)
 
-
+        text = Text("Input \nLayer", color=WHITE,font_size=20)
+        text.next_to(inp_1_circle, UP, buff=1)
 
         animations_3=[
-            Create(circles_group)
+            Create(circles_group),
+            FadeIn(text)
         ]
         self.play(AnimationGroup(*animations_3,lag_ratio=.5))
 
@@ -111,9 +113,12 @@ class ShowAnimation(Scene):
 
         neuron_circle = Circle(radius=1.5, color="GREEN")
         neuron_circle.next_to(circles_group,RIGHT,buff=3)
+        text = Text("Neuron", color=WHITE,font_size=20)
+        text.next_to(neuron_circle, UP, buff=1)
 
         animations_4=[
-            FadeIn(neuron_circle)
+            FadeIn(neuron_circle),
+            FadeIn(text)
         ]
         self.play(AnimationGroup(*animations_4,lag_ratio=.5))
 
@@ -125,7 +130,7 @@ class ShowAnimation(Scene):
             lines.add(line)
 
         # Add the text
-        text = Text("Trainable Weights", color=WHITE,font_size=20)
+        text = Text("Trainable \n Weights", color=WHITE,font_size=20)
         text.next_to(lines, UP, buff=.5)
 
         animations_5=[
@@ -160,12 +165,12 @@ class ShowAnimation(Scene):
         ]
         self.play(AnimationGroup(*animations_7,lag_ratio=.5))
 
-        first_row_highlight = SurroundingRectangle(inp_matrix.get_rows()[0], color="green")
+        first_row_highlight = SurroundingRectangle(inp_matrix.get_rows()[1], color="green")
 
         # Create and position elements inside the circles
-        f_element = Text(str(train_inputs[0][0]), font_size=30).move_to(inp_1_circle)
-        s_element = Text(str(train_inputs[0][1]), font_size=30).move_to(inp_2_circle)
-        t_element = Text(str(train_inputs[0][2]), font_size=30).move_to(inp_3_circle)
+        f_element = Tex('x1 = '+str(train_inputs[1][0]), font_size=30).move_to(inp_1_circle)
+        s_element = Tex('x2 = '+str(train_inputs[1][1]), font_size=30).move_to(inp_2_circle)
+        t_element = Tex('x3 = '+str(train_inputs[1][2]), font_size=30).move_to(inp_3_circle)
 
         # Create animation sequence
         animations = [
@@ -178,20 +183,30 @@ class ShowAnimation(Scene):
         self.play(*animations, lag_ratio=0.5)
         weights_txt = Text("Initial Weights",font_size=20)
 
+        matrix_scale = 0.6
+
+
         wt_matrix=Matrix(weight_matrix,
             v_buff=0.5,
             h_buff=0.5,
             bracket_h_buff=SMALL_BUFF,
             bracket_v_buff=SMALL_BUFF
             )
-
+        wt_matrix.scale(matrix_scale)
+        wt_matrix.set_font_size(.3)
 
         wt_matrix.next_to(lines,DOWN, buff=1)
         weights_txt.next_to(wt_matrix,LEFT)
 
-        array_elements = [Text(str(element), font_size=20) for element in weight_matrix]
-        for i, element in enumerate(array_elements):
-            element.next_to(lines[i])
+        i=1
+        array_elements =[]
+        for element in weight_matrix:
+            array_elements.append(Text('w'+str(i)+' = '+str(element), font_size=20))
+            i+=1
+        array_elements[0].next_to(lines[0],UP,buff=0)
+        array_elements[1].next_to(lines[1],UP,buff=0)
+        array_elements[2].next_to(lines[2],DOWN,buff=0)
+
 
         self.play(
             FadeIn(weights_txt),
@@ -199,6 +214,33 @@ class ShowAnimation(Scene):
             *[FadeIn(element) for element in array_elements]
         )
 
+        line = Line(neuron_circle.get_top(), neuron_circle.get_bottom(), color=WHITE)
+        vertical_line = DashedLine(neuron_circle.get_top(), neuron_circle.get_bottom(), color=WHITE)
+
+        self.play(Create(vertical_line))
+
+        agg_label =Text("Weighted \n Sum", font_size=15 ,color=RED)
+        agg_label.next_to(neuron_circle.get_left(),UP, buff = 2)
+
+        act_function_txt =Text("Activation \n Function", font_size=15 , color=YELLOW)
+        act_function_txt.next_to(neuron_circle.get_right(),UP, buff = 2)
+
+
+        aggregate = MathTex(r"\sum_{i=1}^{n} x_i w_i",color=RED)
+        aggregate.next_to(neuron_circle.get_left(),RIGHT, buff=.05)
+        aggregate.set_font_size(30)
+
+        sigmoid_text = MathTex(r"\sigma(x) =\frac{1}{1 + e^{-x}}",color=YELLOW)
+        sigmoid_text.next_to(neuron_circle.get_right(), LEFT, buff=-1)
+        sigmoid_text.set_font_size(20)
+
+        z = train_inputs[1][0]*weight_matrix[0] +train_inputs[1][1]*weight_matrix[1]+train_inputs[1][2]*weight_matrix[2]
+
+        z = Text(str(z) , color=RED)
+        z.next_to(neuron_circle.get_left(),DOWN, buff=1.5)
+        z.set_font_size(15)
+
+        self.play(FadeIn(aggregate),FadeIn(sigmoid_text),FadeIn(agg_label),FadeIn(act_function_txt),FadeIn(z))
 
         self.wait(2)
 
@@ -225,9 +267,9 @@ class ShowAnimation(Scene):
 
         return self.weight_matrix
 
-    def tanh_a(self,x):
+    def sig(self,x):
 
-        return np.tanh(x)
+        return np.sig(x)
 
     def tanh_derivative(self,x):
 
